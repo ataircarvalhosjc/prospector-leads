@@ -219,7 +219,7 @@ async def prospect(request: Request):
     api_key = os.environ.get("SERPAPI_KEY")
 
     # Buscar
-    empresas = search_google_maps(query, api_key=api_key, num_results=20)
+    empresas = search_google_maps(query, api_key=api_key, num_results=40)
     if not empresas:
         return JSONResponse({"error": "Nenhuma empresa encontrada."}, status_code=404)
 
