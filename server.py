@@ -105,6 +105,8 @@ HTML_PAGE = """<!DOCTYPE html>
     <input type="text" id="nicho" placeholder="Ex: Clínicas de Estética, Academias, Restaurantes...">
     <label for="localizacao">Localização</label>
     <input type="text" id="localizacao" placeholder="Ex: São Paulo, SP">
+    <label for="regiao">Região / Bairro <span style="color:#64748b;font-weight:400">(opcional — para variar os resultados)</span></label>
+    <input type="text" id="regiao" placeholder="Ex: Moema, Vila Mariana, Centro...">
     <button class="btn-primary" id="btn" onclick="prospect()">Iniciar Prospecção</button>
   </div>
 
@@ -134,6 +136,7 @@ let currentLeads = [];
 async function prospect() {
   const nicho = document.getElementById('nicho').value.trim();
   const loc = document.getElementById('localizacao').value.trim();
+  const regiao = document.getElementById('regiao').value.trim();
   if (!nicho || !loc) { alert('Preencha nicho e localização.'); return; }
 
   const btn = document.getElementById('btn');
@@ -147,7 +150,7 @@ async function prospect() {
     const res = await fetch('/api/prospect', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nicho, localizacao: loc })
+      body: JSON.stringify({ nicho, localizacao: loc, regiao })
     });
     const data = await res.json();
 
@@ -211,11 +214,15 @@ async def prospect(request: Request):
     body = await request.json()
     nicho = body.get("nicho", "").strip()
     localizacao = body.get("localizacao", "").strip()
+    regiao = body.get("regiao", "").strip()
 
     if not nicho or not localizacao:
         return JSONResponse({"error": "Nicho e localização são obrigatórios."}, status_code=400)
 
-    query = f"{nicho} em {localizacao}"
+    if regiao:
+        query = f"{nicho} em {regiao}, {localizacao}"
+    else:
+        query = f"{nicho} em {localizacao}"
     api_key = os.environ.get("SERPAPI_KEY")
 
     # Buscar
